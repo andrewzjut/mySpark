@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: management
+    profiles:
+      active: default
+
+
+server:
+  port: 8080

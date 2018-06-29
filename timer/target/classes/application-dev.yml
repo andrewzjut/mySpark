@@ -1,0 +1,27 @@
+dmp:
+  component:
+    timer:
+      redis:
+        host: 10.200.150.8
+        port: 6868
+        auth:
+        db: 10
+      kafka:
+        servers: 10.200.131.154:9092,10.200.131.155:9092,10.200.131.155:9092
+
+management:
+  security:
+    enabled: false
+  context-path: /management-admin
+
+endpoints:
+  restart:
+    enabled: true
+
+logging:
+  path: ./logs
+  level:
+    com:
+      zt:
+        vertx:
+         timer: info
