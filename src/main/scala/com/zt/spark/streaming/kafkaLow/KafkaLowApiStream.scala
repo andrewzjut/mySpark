@@ -5,6 +5,7 @@ import com.zt.kafka.basic.KafkaProperties
 import com.zt.kafka.basic.string.Producer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
@@ -56,12 +57,13 @@ object KafkaLowApiStream extends App with LazyLogging {
   stream.foreachRDD(rdd => {
     if (!rdd.isEmpty()) {
 
-      var offsetRanges = Array[OffsetRange]()
-      offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+      val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
 
-      for (o <- offsetRanges) {
+      rdd.foreachPartition { _ =>
+        val o: OffsetRange = offsetRanges(TaskContext.get.partitionId)
         println(s"${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
       }
+
 
       val processedOffsetRanges: RDD[OffsetRange] = rdd.mapPartitions[OffsetRange](records => {
         var offsetRange: OffsetRange = null
@@ -85,6 +87,7 @@ object KafkaLowApiStream extends App with LazyLogging {
           .map(_ => OffsetRange(offsetRange.topic, offsetRange.partition, offsetRange.fromOffset, processedOffset))
       })
       stream.asInstanceOf[CanCommitOffsets].commitAsync(processedOffsetRanges.collect())
+
     }
   })
 

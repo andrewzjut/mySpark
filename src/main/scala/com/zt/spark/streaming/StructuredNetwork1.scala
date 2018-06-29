@@ -28,12 +28,20 @@ object StructuredNetwork1 extends Logging {
     val people2: DataFrame = socketDF.map(r => r.getString(0).split(",")).map(tp => (tp(0), tp(1).toInt)).toDF("name", "age")
     people2.printSchema()
     val count = people2.groupBy("name", "age").count()
-//    val query = count
-//      .writeStream
-//      .outputMode("complete")
-//      .format("console")
-//      .start()
-    people2.writeStream.foreach(new ForeachWriter[Row] {
+    val query = count
+      .writeStream
+      .outputMode("complete")
+      .format("console")
+      .start()
+
+
+    val socketDF2 = spark.readStream
+      .format("socket")
+      .option("host", "localhost")
+      .option("port", "9998")
+      .load()
+
+    socketDF2.writeStream.foreach(new ForeachWriter[Row] {
       override def open(partitionId: Long, version: Long): Boolean = {
         log.error("初始化")
         true

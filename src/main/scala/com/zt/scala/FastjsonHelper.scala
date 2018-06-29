@@ -78,5 +78,9 @@ object FastjsonHelper extends Serializable {
     println(person4.getAge)
     println(toObject[Long]("5555555", classOf[Long]))
     println("555555".toLong)
+
+
+   val map =  Map("a" -> "A", "b" -> ("c" -> "C", "d" -> "D"))
+    println(toJsonString(map))
   }
 }

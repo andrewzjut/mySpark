@@ -44,11 +44,13 @@
             <artifactId>spark-streaming_${scala.major.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
+        <!--structured streaming with kafka-->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql-kafka-0-10_${scala.major.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
+        <!--spark streaming with kafka-->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka-0-10_${scala.major.version}</artifactId>
