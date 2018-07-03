@@ -3,7 +3,7 @@ package com.zt.spark.streaming
 import com.zt.scala.common.Person
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql._
+import org.apache.spark.sql.{DataFrame, _}
 
 object StructuredNetwork1 extends Logging {
   def main(args: Array[String]) {

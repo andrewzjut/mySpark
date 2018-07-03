@@ -4,7 +4,6 @@ import org.apache.spark.internal.Logging
 import orestes.bloomfilter.{BloomFilter, FilterBuilder}
 
 import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
-import shapeless.Nat._0
 
 object RedisTemplate extends Logging with Serializable {
   private var instance: JedisPool = _
