@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, Future, Promise}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Component
 class RedisTimerProcessor @Autowired()(timerConfig: TimerConfig,
@@ -50,12 +51,14 @@ class RedisTimerProcessor @Autowired()(timerConfig: TimerConfig,
   }
 
   def startConsumeTask(category: String): Unit = {
-    executor.execute(() => {
-      while (true) {
-        if (Dew.cluster.election == null || Dew.cluster.election.isLeader) {
-          Await.result(consumeTask(category), Duration.Inf)
-        } else {
-          Thread.sleep(1000L)
+    executor.execute(new Runnable {
+      override def run(): Unit = {
+        while (true) {
+          if (Dew.cluster.election == null || Dew.cluster.election.isLeader) {
+            Await.result(consumeTask(category), Duration.Inf)
+          } else {
+            Thread.sleep(1000L)
+          }
         }
       }
     })

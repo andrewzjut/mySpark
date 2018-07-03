@@ -19,36 +19,36 @@ public class Producer extends Thread {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProperties.BOOTSTRAPS);
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "DemoProducer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
-        producer = new KafkaProducer<String, byte[]>(props);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        producer = new KafkaProducer<String, String>(props);
         this.topic = topic;
         this.isAsync = isAsync;
     }
 
     public void run() {
         int messageNo = 1;
-        while (messageNo <= 10) {
+        while (messageNo <= 1) {
 
-            String messageStr = null;
+            String messageStr = String.valueOf(System.currentTimeMillis());
 
-            byte[] bytes = new byte[10];
-                for (int i = 0; i <10 ; i++) {
-                    bytes[i] = 'a';
-            }
-            messageStr = new String(bytes);
+//            byte[] bytes = new byte[10];
+//            for (int i = 0; i < 10; i++) {
+//                bytes[i] = 'a';
+//            }
+//            messageStr = new String(bytes);
             long startTime = System.currentTimeMillis();
             if (isAsync) { // Send asynchronously
-                producer.send(new ProducerRecord<String, byte[]>(topic,
-                        bytes), new DemoCallBack(startTime, messageNo, messageStr));
+                producer.send(new ProducerRecord<String, String>(topic,
+                        messageStr), new DemoCallBack(startTime, messageNo, messageStr));
             } else { // Send synchronously
                 try {
                     Future<RecordMetadata> future = producer.send(
                             new ProducerRecord(
                                     topic,
-                                    bytes));
+                                    messageStr));
                     RecordMetadata recordMetadata = future.get();
-                    System.out.println("Sent message: (" + messageNo + ", " + messageStr + ") to partition: "
-                            + recordMetadata.partition() + " , offset: " + recordMetadata.offset()   );
+//                    System.out.println("Sent message: (" + messageNo + ", " + messageStr + ") to partition: "
+//                            + recordMetadata.partition() + " , offset: " + recordMetadata.offset());
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -56,25 +56,39 @@ public class Producer extends Thread {
             ++messageNo;
 
 
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(10);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
 
-        String topic = "KafkaLowApiStream3";
+        String topic = "aaa";
 
-        Producer producerThread = new Producer(topic, false);
-        producerThread.start();
-//
-//        Thread.sleep(100);
 
-//        Consumer consumerThread1 = new Consumer("group-7", topic);
-//        consumerThread1.start();
+        Consumer consumerThread1 = new Consumer("group-7", topic);
+        consumerThread1.start();
+
+
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProperties.BOOTSTRAPS);
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "DemoProducer");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        KafkaProducer producer2 = new KafkaProducer<String, String>(props);
+
+
+        for (int i = 0; i < 1000; i++) {
+
+            producer2.send(new ProducerRecord(
+                    topic + i,
+                    String.valueOf(System.currentTimeMillis())));
+
+            Thread.sleep(500);
+        }
 
     }
 }

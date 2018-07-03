@@ -10,6 +10,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 public class Consumer extends Thread {
     private final KafkaConsumer<String, String> consumer;
@@ -18,14 +19,14 @@ public class Consumer extends Thread {
 
     public Consumer(String group, String topic) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProperties.KAFKA_SERVER_URL);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProperties.BOOTSTRAPS);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, group);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class.getName());
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         consumer = new KafkaConsumer<>(props);
 
         this.topic = topic;
@@ -35,13 +36,27 @@ public class Consumer extends Thread {
     @Override
     public void run() {
 
-        consumer.subscribe(Collections.singletonList(this.topic));
+//        consumer.subscribe(Collections.singletonList(this.topic));
+//
+//        consumer.subscribe(Arrays.asList(topic));
 
-        consumer.subscribe(Arrays.asList(topic));
 
-        ConsumerRecords<String, String> records = consumer.poll(1000);
-        for (ConsumerRecord<String, String> record : records) {
-            System.out.printf("offset = %d, key = %s, value = %s \n", record.offset(), record.key(), record.value());
+
+        String patternStrng = "aaa.*";
+        Pattern pattern = Pattern.compile(patternStrng);
+        consumer.subscribe(pattern);
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(1000);
+            for (ConsumerRecord<String, String> record : records) {
+                long consumeTime = System.currentTimeMillis();
+                String produceTime = record.value();
+                System.out.println("消费 topic:" + record.topic() + "，耗时:" + (consumeTime - Long.parseLong(produceTime)));
+            }
         }
+    }
+
+    public static void main(String[] args) {
+        Consumer consumer = new Consumer("xxxxx","");
+        consumer.start();
     }
 }

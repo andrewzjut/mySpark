@@ -14,7 +14,7 @@
     <artifactId>parent</artifactId>
     <name>zt父工程</name>
     <packaging>pom</packaging>
-    <version>${zt.version}</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <zt.version>1.0.0-SNAPSHOT</zt.version>

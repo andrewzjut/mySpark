@@ -5,7 +5,7 @@ tmp/
 *.tmp
 *.bak
 sdk/
-/target
+target/
 
 .mvn/
 mvnw

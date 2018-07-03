@@ -3,8 +3,7 @@ package com.zt.scala.page
 import java.util
 
 import com.ecfront.dew.common.{$, Page}
-import com.sun.tools.javac.code.TypeTag
-import scala.reflect.runtime.universe._
+
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
