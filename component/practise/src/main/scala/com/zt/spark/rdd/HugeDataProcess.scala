@@ -13,14 +13,14 @@ object HugeDataProcess extends App with LazyLogging {
   }
 
   val sc = SparkSession.builder
-    .master("local")
+    .master(args(0))
     .config("driver-memory", "1024M")
     .config("executor-memory", "1024M")
     .appName("recommendation").getOrCreate()
 
   val start = System.currentTimeMillis()
   //加载HDFS数据
-  val rdd = sc.sparkContext.textFile("hdfs://192.168.129.101:9000/data/test.txt")
+  val rdd = sc.sparkContext.textFile(args(1))
 
   //在驱动程序获取结果集
   val counts = new AtomicLong(0)

@@ -1,8 +1,7 @@
 package com.zt.spark.streaming.kafkaLow
 
 import com.typesafe.scalalogging.LazyLogging
-import com.zt.kafka.basic.KafkaProperties
-import com.zt.kafka.basic.string.Producer
+import com.zt.scala.constant.KafkaProperties
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.TaskContext

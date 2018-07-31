@@ -44,5 +44,11 @@ object RemoveBlanks {
     } yield (2 * i)
 
 
+    val xx = for {
+      i <- Seq(Seq(1, 2, 3), Seq("a", "b", "c"))
+      j <- i
+    } yield (j)
+
+    println(xx)
   }
 }

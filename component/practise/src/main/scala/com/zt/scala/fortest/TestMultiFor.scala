@@ -14,7 +14,8 @@ object TestMultiFor extends App {
     upper <- toUpperList(low)
     a <- print(low)
     b <- print(upper)
-  } println(a + " " + b)
+    d <- Some("aaa")
+  } println(a + " " + b + " " + d)
 
 
   def getLowerList(): Future[List[String]] = {

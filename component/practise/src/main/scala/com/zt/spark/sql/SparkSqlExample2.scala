@@ -11,7 +11,7 @@ object SparkSqlExample2 extends App with Logging {
   val spark = SparkSession
     .builder().master("local")
     .appName("Spark SQL basic example")
-    .config("spark.sql.warehouse.dir", "file:///Users/zhangtong/IdeaProjects/mySpark/src/main/resources/spark-warehouse")
+    .config("spark.sql.warehouse.dir", "/tmp/spark-warehouse")
     .getOrCreate()
 
   import org.apache.spark.sql.functions._
@@ -59,9 +59,12 @@ object SparkSqlExample2 extends App with Logging {
   val mycount = MyAggFunction
 
   dataset.show()
+
   val q = dataset.
     withColumn("group", 'id % 2).
-    groupBy('group).
+    groupBy("group").
     agg(mycount.distinct('id) as "count")
   q.show()
+
+
 }

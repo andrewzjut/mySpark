@@ -1,4 +1,4 @@
-package com.zt.scala.`implicit`
+package com.zt.scala.myimplicit
 
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
@@ -23,7 +23,7 @@ class Student {
 
 object ManifestTest extends App {
 
-  def arrayMake[T:ClassTag](first: T, second: T) = {
+  def arrayMake[T: ClassTag](first: T, second: T) = {
     val r = new Array[T](2)
     r(0) = first
     r(1) = second
@@ -38,6 +38,7 @@ object ManifestTest extends App {
     else
       params.toList
   }
+
   println(makeList("hello", "world"))
 
 
@@ -76,6 +77,8 @@ object ManifestTest extends App {
       println("List strings")
     else
       println("Some other type")
+    if (m.isInstanceOf[ClassTag[String]])
+      println("String")
   }
 
   manif2(List("Spark", "Hadoop"))
@@ -94,7 +97,7 @@ object ManifestTest extends App {
 
   //ClassTag是我们最常用的。它主要在运行时指定在编译时无法确定的类别的信息。
   // 我这边 Array[T](elems: _*) 中的下划线是占位符，表示很多元素
-  def mkArray[T: ClassTag](elems: T*) = Array[T](elems: _*)
+  def mkArray[T: ClassTag](elems: T*): Array[T] = Array[T](elems: _*)
 
 
   val m = manifest[MyType[String]]
@@ -114,11 +117,11 @@ object ManifestTest extends App {
   */
   mkArray(1, 2, 3, 4, 5).foreach(println)
 
-  val ru = scala.reflect.runtime.universe
+  //  val ru = scala.reflect.runtime.universe
 
   def meth1[T: TypeTag](xs: List[T]) =
     typeTag[T].tpe match {
-      case t if t =:= typeOf[String] => "list of String"
+      case t if t <:< typeOf[String] => "list of String"
       case t if t =:= typeOf[Int] => "list of integer"
       case t if t =:= typeOf[List[String]] => "list of list of string"
       case t if t =:= typeOf[Set[List[Int]]] => "list of set of list of integer"
@@ -154,8 +157,12 @@ object ManifestTest extends App {
     case _ => None
   }
 
-  extract(List(1, 2, 3)).foreach(println)
+  println("extract >>>>>>>>>")
+  extract[Int](List[Int](1, 2, 3)).foreach(x => print(x + " "))
+  println()
+  extract[String](List(1, "One", 2, 3, "Four", List(5))).foreach(x => print(x + " "))
 
+  println("\nreflect >>>>>>>>..")
 
   def reflect[T](p: T)(implicit m: ClassTag[T]) = {
 

@@ -1,9 +1,12 @@
 package com.zt.scala.chapter3
 
+import java.io.{BufferedInputStream, FileInputStream}
+
+import scala.reflect.io.File
 import scala.util.control.NonFatal
 
-object manage {
-  def apply[R <: {def close() : Unit}, T](resource: => R)(f: R => T) = {
+object Manage {
+  def apply[R <: {def close() : Unit}, T](resource: R)(f: R => T) = {
     var res: Option[R] = None
     try {
       res = Some(resource)
@@ -21,18 +24,26 @@ object manage {
 
 object TryCatchARM {
   def main(args: Array[String]): Unit = {
-    args foreach (arg => countLines(arg))
+    args foreach (arg => getSize(arg))
   }
 
   import scala.io.Source
 
   def countLines(fileName: String): Unit = {
     println()
-    manage(Source.fromFile(fileName)) {
+    Manage(Source.fromFile(fileName)) {
       source =>
         val size = source.getLines().size
         println(s"file $fileName hase $size lines")
         if (size > 20) throw new RuntimeException("Big File")
+    }
+  }
+
+  def getSize(fileName: String): Unit = {
+    Manage(new FileInputStream(new java.io.File(fileName))) {
+      in: FileInputStream =>
+        val stream = new BufferedInputStream(in)
+        println(stream.available())
     }
   }
 }

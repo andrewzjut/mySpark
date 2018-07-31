@@ -34,7 +34,7 @@ object SparkKMeans {
     val sc = new SparkContext(conf)
 //    sc.addJar("D:\\myPlace\\Spark2.0Learnning\\out\\artifacts\\Spark2_0Learnning_jar\\Spark2.0Learnning.jar")
 
-    val lines = sc.textFile("/Users/zhangtong/IdeaProjects/mySpark/src/main/resources/kmeans_data.txt")
+    val lines = sc.textFile("/Users/zhangtong/IdeaProjects/git/mySpark/component/practise/src/main/resources/kmeans_data.txt")
 
     val data = lines.map(parseVector _).cache()
     data.collect().foreach(println)

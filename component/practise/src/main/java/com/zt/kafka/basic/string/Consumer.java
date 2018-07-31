@@ -42,9 +42,9 @@ public class Consumer extends Thread {
 
 
 
-        String patternStrng = "aaa.*";
-        Pattern pattern = Pattern.compile(patternStrng);
-        consumer.subscribe(pattern);
+//        String patternStrng = "aaa.*";
+//        Pattern pattern = Pattern.compile(patternStrng);
+        consumer.subscribe(Arrays.asList(topic));
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(1000);
             for (ConsumerRecord<String, String> record : records) {
@@ -56,7 +56,7 @@ public class Consumer extends Thread {
     }
 
     public static void main(String[] args) {
-        Consumer consumer = new Consumer("xxxxx","");
+        Consumer consumer = new Consumer("xxxxx","abcd4");
         consumer.start();
     }
 }

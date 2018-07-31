@@ -1,4 +1,4 @@
-package com.zt.scala.`implicit`
+package com.zt.scala.myimplicit
 
 import java.io.File
 
@@ -10,8 +10,8 @@ object Implicit {
     val x:Int = 3.5
     println(x)
     implicit def file2RichFile(file: File)=new RichFile(file)
-    val f = new File("/Users/zhangtong/IdeaProjects/mySpark/src/main/resources/log4j.properties").read
-    println(f)
+    val file = new File("/Users/zhangtong/IdeaProjects/mySpark/src/main/resources/log4j.properties")
+    println(file.read)
   }
 }
 

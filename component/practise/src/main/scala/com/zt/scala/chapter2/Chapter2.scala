@@ -3,8 +3,9 @@ package com.zt.scala.chapter2
 import java.io.{BufferedInputStream, File, FileInputStream, FileNotFoundException}
 
 import scala.annotation.tailrec
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 import scala.reflect.ClassTag
+import scala.util.Success
 
 object Chapter2 extends App {
 
@@ -57,7 +58,8 @@ object Chapter2 extends App {
 
   (1 to 5) foreach { //5个并发
     index =>
-      val future = Future { //异步执行
+      val future: Future[Int] = Future {
+        //异步执行
         dowork(index)
       }
       //隐式参数 implicit executor: ExecutionContext
@@ -77,6 +79,19 @@ object Chapter2 extends App {
   }
   sleep(1000) // 等待足够长的时间，以确保工作线程结束。 println("Finito!")
 
+  def a(a: Int): Future[Int] = {
+    val future: Promise[Int] = Promise[Int]
+    if (a % 2 == 0) future.success(1) else future.failure(new Throwable)
+    future.future
+  }
+
+  val result = a(2)
+  result onSuccess{
+    case 1 => println(s"Success! returned")
+  }
+  result onFailure {
+    case th: Throwable => println(s"FAILURE! returned: $th")
+  }
 
   def factorial(i: Int): Long = {
     @tailrec

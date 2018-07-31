@@ -2,12 +2,11 @@ package com.zt.spark.broadcast
 
 import java.util.Properties
 
-import com.zt.kafka.basic.KafkaProperties
 import com.zt.myspark.templates.RedisTemplate
+import com.zt.scala.constant.KafkaProperties
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SparkSession
-import redis.clients.jedis.Jedis
 
 object BroadcastVar {
   def main(args: Array[String]): Unit = {

@@ -27,7 +27,8 @@ import org.apache.spark.sql.types._
 // $example off:programmatic_schema$
 
 object SparkSQLExample {
-
+  val peopleJson = "/Users/zhangtong/IdeaProjects/git/mySpark/component/practise/src/main/resources/people.json"
+  val peopleTxt = "/Users/zhangtong/IdeaProjects/git/mySpark/component/practise/src/main/resources/people.txt"
   // $example on:create_ds$
   // Note: Case classes in Scala 2.10 can support only up to 22 fields. To work around this limit,
   // you can use custom classes that implement the Product interface
@@ -39,7 +40,7 @@ object SparkSQLExample {
     val spark = SparkSession
       .builder().master("local")
       .appName("Spark SQL basic example")
-      .config("spark.sql.warehouse.dir", "file:///Users/zhangtong/IdeaProjects/mySpark/src/main/resources/spark-warehouse")
+      .config("spark.sql.warehouse.dir", "/tmp/spark-warehouse")
       .getOrCreate()
 
     // For implicit conversions like converting RDDs to DataFrames
@@ -55,7 +56,7 @@ object SparkSQLExample {
 
   private def runBasicDataFrameExample(spark: SparkSession): Unit = {
     // $example on:create_df$
-    val df = spark.read.json("src/main/resources/people.json")
+    val df = spark.read.json(peopleJson)
     // Displays the content of the DataFrame to stdout
     df.show()
     // +----+-------+
@@ -87,7 +88,7 @@ object SparkSQLExample {
     // +-------+
 
     // Select everybody, but increment the age by 1
-    df.select($"name", $"age" + 1).show()
+    df.select('name, $"age" + 1).show()
     // +-------+---------+
     // |   name|(age + 1)|
     // +-------+---------+
@@ -97,7 +98,7 @@ object SparkSQLExample {
     // +-------+---------+
 
     // Select people older than 21
-    df.filter($"age" > 21).show()
+    df.filter('age > 21).show()
     // +---+----+
     // |age|name|
     // +---+----+
@@ -154,6 +155,8 @@ object SparkSQLExample {
     // |  19| Justin|
     // +----+-------+
     // $example off:global_temp_view$
+
+
   }
 
   private def runDatasetCreationExample(spark: SparkSession): Unit = {
@@ -173,7 +176,7 @@ object SparkSQLExample {
     primitiveDS.map(_ + 1).collect() // Returns: Array(2, 3, 4)
 
     // DataFrames can be converted to a Dataset by providing a class. Mapping will be done by name
-    val path = "src/main/resources/people.json"
+    val path = peopleJson
     val peopleDS = spark.read.json(path).as[Person]
     peopleDS.show()
     // +----+-------+
@@ -193,7 +196,7 @@ object SparkSQLExample {
 
     // Create an RDD of Person objects from a text file, convert it to a Dataframe
     val peopleDF = spark.sparkContext
-      .textFile("src/main/resources/people.txt")
+      .textFile(peopleTxt)
       .map(_.split(","))
       .map(attributes => Person(attributes(0), attributes(1).trim.toInt))
       .toDF()
@@ -234,7 +237,7 @@ object SparkSQLExample {
     import spark.implicits._
     // $example on:programmatic_schema$
     // Create an RDD
-    val peopleRDD = spark.sparkContext.textFile("src/main/resources/people.txt")
+    val peopleRDD = spark.sparkContext.textFile(peopleTxt)
 
     // The schema is encoded in a string
     val schemaString = "name age"

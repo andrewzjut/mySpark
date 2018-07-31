@@ -19,10 +19,40 @@
     </modules>
 
     <packaging>pom</packaging>
-<properties>
-    <spark.version>2.3.0</spark.version>
-    <scala.major.version>2.11</scala.major.version>
-</properties>
+
+    <properties>
+        <scala.minor.version>2.11.8</scala.minor.version>
+        <scala-logging.version>3.8.0</scala-logging.version>
+        <spark.version>2.3.0</spark.version>
+        <scala.major.version>2.11</scala.major.version>
+        <spark.scope>compile</spark.scope>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.minor.version}</version>
+            <scope>${spark.scope}</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_${scala.major.version}</artifactId>
+            <version>${scala-logging.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-reflect</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+
 
     <repositories>
         <repository>
@@ -42,4 +72,21 @@
             <url>http://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

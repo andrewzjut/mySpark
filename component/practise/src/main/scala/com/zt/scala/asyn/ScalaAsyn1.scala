@@ -29,6 +29,7 @@ object ScalaAsyn1 extends App {
     Thread.sleep(2000)
     1
   }
+
   end = System.currentTimeMillis()
 
   println(s"异步等待了${end - start} 毫秒,返回值:${value2.value}")

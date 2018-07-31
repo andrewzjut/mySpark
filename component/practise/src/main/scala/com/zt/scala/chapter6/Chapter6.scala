@@ -24,9 +24,9 @@ object Chapter6 extends App {
   val multiplier = (i: Int) => i * factor
   (1 to 10) filter (_ % 2 == 0) map multiplier reduce (_ * _)
 
-  def cat1(s1: String)(s2: String) = s1 + s2
+  def cat1(s1: String)(s2: String): String = s1 + s2
 
-  def hello = cat1("hello: ") _
+  def hello: String => String = cat1("hello: ") _
 
   println(hello("world"))
 

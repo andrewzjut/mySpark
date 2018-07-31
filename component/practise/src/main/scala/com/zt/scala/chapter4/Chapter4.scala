@@ -188,7 +188,7 @@ object Chapter4 extends App {
   }
 
   for (seq <- Seq(nonEmptyList, emptyList, nonEmptyMap.toSeq)) {
-    println(windows2(seq))
+    println("dddd=>" + windows2(seq))
   }
 
 
@@ -283,7 +283,7 @@ object Chapter4 extends App {
   }
 
   pas.map {
-        case (Person2(name, age), Address(street, city, country)) => println(s"$name (age: $age) lives at $street, $city, in $country")
+    case (Person2(name, age), Address(street, city, country)) => println(s"$name (age: $age) lives at $street, $city, in $country")
   }
 
 }

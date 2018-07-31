@@ -15,14 +15,14 @@ object RddOperation extends App {
   val data = Array(1, 2, 3, 4, 5)
   val distData = spark.sparkContext.parallelize(data)
 
-  distData.map(x => x * 2).collect().foreach(x => print(x + " "))
+  distData.map(x => x * 2).foreach(x => print(x + " "))
   println()
-  distData.map(MyFunctions.addOne).collect().foreach(x => print(x + " "))
+  distData.map(MyFunctions.addOne).foreach(x => print(x + " "))
   println()
 
   var counter1: Int = 0
   var rdd1 = spark.sparkContext.parallelize(data)
-  rdd1.collect().foreach(x => counter1 += 1)
+  rdd1.foreach(_ => counter1 += 1)
   println("Counter1:" + counter1)
 
   //一般情况下, Spark 的 map 或者 reduce 操作(task)的方法是运行在远程的集群节点上的，
@@ -33,7 +33,7 @@ object RddOperation extends App {
   //使用原生的数字类型的增量器
   var counter = spark.sparkContext.longAccumulator("My Accumulator")
   var rdd = spark.sparkContext.parallelize(data)
-  rdd.foreach(x => counter.add(1))
+  rdd.foreach(_ => counter.add(1))
   println("Counter:" + counter.value)
 
   //自定义类型累加器

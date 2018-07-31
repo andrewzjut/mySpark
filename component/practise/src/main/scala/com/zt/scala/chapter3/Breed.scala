@@ -1,5 +1,5 @@
 package com.zt.scala.chapter3
-
+//枚举
 object Breed extends Enumeration {
   //  type Breed = Value
   val doberman = Value("Doberman Pinscher")

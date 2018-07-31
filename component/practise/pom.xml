@@ -95,6 +95,7 @@
             <artifactId>mongo-spark-connector_${scala.major.version}</artifactId>
             <version>2.2.1</version>
         </dependency>
+
     </dependencies>
 
     <build>

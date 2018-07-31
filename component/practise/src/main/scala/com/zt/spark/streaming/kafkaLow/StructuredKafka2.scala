@@ -1,4 +1,4 @@
-package com.zt.spark.streaming
+package com.zt.spark.streaming.kafkaLow
 
 import java.sql.Timestamp
 import java.util.UUID

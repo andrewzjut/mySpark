@@ -4,6 +4,8 @@ import com.zt.kafka.basic.KafkaProperties;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -13,6 +15,8 @@ public class Producer extends Thread {
     private final KafkaProducer producer;
     private final String topic;
     private final Boolean isAsync;
+
+    private static final Logger logger = LoggerFactory.getLogger(Producer.class);
 
     public Producer(String topic, Boolean isAsync) {
         Properties props = new Properties();
@@ -66,11 +70,11 @@ public class Producer extends Thread {
 
     public static void main(String[] args) throws Exception {
 
-        String topic = "aaa";
+        String topic = "abcde1";
 
 
-        Consumer consumerThread1 = new Consumer("group-7", topic);
-        consumerThread1.start();
+//        Consumer consumerThread1 = new Consumer("group-7", topic);
+//        consumerThread1.start();
 
 
         Properties props = new Properties();
@@ -82,12 +86,14 @@ public class Producer extends Thread {
 
 
         for (int i = 0; i < 1000; i++) {
-
             producer2.send(new ProducerRecord(
-                    topic + i,
-                    String.valueOf(System.currentTimeMillis())));
-
-            Thread.sleep(500);
+                    topic,
+                    String.valueOf(System.currentTimeMillis())), new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    logger.info(recordMetadata.partition() + ">>" + recordMetadata.offset());
+                }
+            });
         }
 
     }

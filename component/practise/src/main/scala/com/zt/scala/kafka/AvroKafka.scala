@@ -3,7 +3,7 @@ package com.zt.scala.kafka
 import java.util
 import java.util.{Collections, Properties}
 
-import com.zt.kafka.basic.KafkaProperties
+import com.zt.scala.constant.KafkaProperties
 import io.confluent.kafka.serializers.{KafkaAvroDeserializer, KafkaAvroSerializer}
 import org.apache.avro.Schema
 import org.apache.avro.generic.{GenericData, GenericRecord}

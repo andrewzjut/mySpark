@@ -2,7 +2,7 @@ package com.zt.scala
 
 import com.alibaba.fastjson.serializer.SerializerFeature
 import com.alibaba.fastjson.{JSON, JSONObject}
-import com.zt.scala.`implicit`.Person
+import com.zt.scala.myimplicit.Person
 
 import scala.beans.BeanProperty
 

@@ -2,12 +2,12 @@ package com.zt.spark.streaming
 
 import java.util.UUID
 
-import com.zt.kafka.basic.KafkaProperties
 import com.zt.scala.common.{StreamRecord, Visit}
+import com.zt.scala.constant.KafkaProperties
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.{Encoders, SparkSession}
 import org.apache.spark.sql.functions.{col, date_format, from_json, get_json_object}
 import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.{Encoders, SparkSession}
 
 object StructuredKafka1 extends Logging {
   def main(args: Array[String]): Unit = {

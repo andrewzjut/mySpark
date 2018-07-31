@@ -17,15 +17,15 @@ public class Client {
     public static void main(String[] args) throws Exception {
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProperties.BOOTSTRAPS);
+        AdminClient client = AdminClient.create(props);
 
-        try (AdminClient client = AdminClient.create(props)) {
-            List<String> topics = new ArrayList<>();
-            for (int i = 0; i < 1000; i++) {
-                topics.add("aaa" + i);
-            }
-            deleteTopics(client, topics);
-
+        List<String> topics = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            topics.add("abcd" + i);
         }
+        deleteTopics(client, topics);
+
+    Thread.sleep(10000);
     }
 
     /**
@@ -81,7 +81,7 @@ public class Client {
      * @param client
      */
     public static void deleteTopics(AdminClient client, List<String> topics) throws ExecutionException, InterruptedException {
-         client.deleteTopics(topics);
+        client.deleteTopics(topics);
     }
 
     /**

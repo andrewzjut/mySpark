@@ -20,8 +20,6 @@ object RedisClient {
       }
       jedisPool
     }
-    apply(createRedisPool)
+    new RedisClient(createRedisPool)
   }
-
-  def apply(createRedisPool: () => JedisPool): RedisClient = new RedisClient(createRedisPool)
 }
