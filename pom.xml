@@ -16,6 +16,7 @@
         <module>component/timer</module>
         <module>basic/common-vertx</module>
         <module>component/practise</module>
+        <module>component/data-struct</module>
     </modules>
 
     <packaging>pom</packaging>

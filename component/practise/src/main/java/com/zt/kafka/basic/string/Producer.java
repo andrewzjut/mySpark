@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -20,7 +21,7 @@ public class Producer extends Thread {
 
     public Producer(String topic, Boolean isAsync) {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProperties.BOOTSTRAPS);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "42.159.81.240:9092,42.159.85.129:9092,42.159.83.167:9092");
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "DemoProducer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -31,70 +32,40 @@ public class Producer extends Thread {
 
     public void run() {
         int messageNo = 1;
-        while (messageNo <= 1) {
+        while (messageNo <= 10000) {
 
             String messageStr = String.valueOf(System.currentTimeMillis());
 
-//            byte[] bytes = new byte[10];
-//            for (int i = 0; i < 10; i++) {
-//                bytes[i] = 'a';
-//            }
-//            messageStr = new String(bytes);
             long startTime = System.currentTimeMillis();
             if (isAsync) { // Send asynchronously
-                producer.send(new ProducerRecord<String, String>(topic,
+                producer.send(new ProducerRecord<String, String>(
+                        topic,
+                        messageNo % 5,
+                        "",
                         messageStr), new DemoCallBack(startTime, messageNo, messageStr));
             } else { // Send synchronously
                 try {
                     Future<RecordMetadata> future = producer.send(
                             new ProducerRecord(
                                     topic,
+                                    messageNo % 5,
+                                    "",
                                     messageStr));
                     RecordMetadata recordMetadata = future.get();
-//                    System.out.println("Sent message: (" + messageNo + ", " + messageStr + ") to partition: "
-//                            + recordMetadata.partition() + " , offset: " + recordMetadata.offset());
+                    System.out.println("Sent message: (" + messageNo + ", " + messageStr + ") to partition: "
+                            + recordMetadata.partition() + " , offset: " + recordMetadata.offset());
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
             }
             ++messageNo;
-
-
-//            try {
-//                Thread.sleep(10);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
         }
     }
 
     public static void main(String[] args) throws Exception {
+        Producer producer = new Producer("abcde1", true);
+        producer.start();
 
-        String topic = "abcde1";
-
-
-//        Consumer consumerThread1 = new Consumer("group-7", topic);
-//        consumerThread1.start();
-
-
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProperties.BOOTSTRAPS);
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "DemoProducer");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        KafkaProducer producer2 = new KafkaProducer<String, String>(props);
-
-
-        for (int i = 0; i < 1000; i++) {
-            producer2.send(new ProducerRecord(
-                    topic,
-                    String.valueOf(System.currentTimeMillis())), new Callback() {
-                @Override
-                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                    logger.info(recordMetadata.partition() + ">>" + recordMetadata.offset());
-                }
-            });
-        }
 
     }
 }
@@ -128,7 +99,7 @@ class DemoCallBack implements Callback {
                             "), " +
                             "offset(" + metadata.offset() + ") in " + elapsedTime + " ms");
         } else {
-            exception.printStackTrace();
+            System.out.println("error");
         }
     }
 }

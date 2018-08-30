@@ -22,10 +22,10 @@ class Producer(val pTopic: String, pIsAsync: Boolean) extends Thread {
 
   override def run(): Unit = {
     var messageNo: Int = 1
-    while (messageNo <= 1) {
+    while (messageNo <= 100) {
       val messageStr = String.valueOf(System.currentTimeMillis())
 
-      val bytes = new Array[Byte](1024)
+      val bytes = new Array[Byte](1024*1000)
       for (i <- 0 to bytes.length - 1) {
         bytes(i) = 'a'
       }
@@ -36,7 +36,7 @@ class Producer(val pTopic: String, pIsAsync: Boolean) extends Thread {
       if (isAsync) {
         producer.send(new ProducerRecord[String, String](
           topic,
-          messageStr), new MyCallBack(startTime, messageNo, messageStr))
+          new String(bytes)), new MyCallBack(startTime, messageNo, messageStr))
       } else {
 
         try {
@@ -76,6 +76,6 @@ class MyCallBack(sTime: Long, k: Int, msg: String) extends Callback {
 }
 
 object Te extends App {
-  val producer = new Producer("a", true)
+  val producer = new Producer("test3", true)
   producer.start()
 }

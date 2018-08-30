@@ -7,10 +7,11 @@ import java.util.{Properties, Random, UUID}
 import com.zt.scala.constant.KafkaProperties
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
+
 object TestDataMaker {
   val topic: String = "nginx-logs"
-  def main(args: Array[String]): Unit = {
 
+  def main(args: Array[String]): Unit = {
 
 
     val props = new Properties()
@@ -32,8 +33,8 @@ object TestDataMaker {
 
     val localDate = LocalDate.now()
 
-    while (true){
-      for (i <- 0 to 10000) {
+    while (true) {
+      for (i <- 0 to 100) {
 
         val userId = new Random().nextInt(100)
 
@@ -51,7 +52,7 @@ object TestDataMaker {
         log.append("&")
         log.append("siteid=").append(sites(userId % 9))
         println(log.toString())
-        producer.send(new ProducerRecord[String, String](topic, 0, "", log.toString()))
+        producer.send(new ProducerRecord[String, String](topic, i % 3, "", log.toString()))
 
       }
 

@@ -1,5 +1,7 @@
 package com.zt.spark.pvuv
 
+import java.util
+
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -9,14 +11,14 @@ import org.apache.spark.streaming._
 import org.apache.spark.streaming.kafka010.{ConsumerStrategies, HasOffsetRanges, KafkaUtils, LocationStrategies}
 import redis.clients.jedis.Pipeline
 
-case class MyRecord(day:String,hour: String, user_id: String, site_id: String)
+case class MyRecord(day: String, hour: String, user_id: String, site_id: String)
 
 object TestSparkStreaming {
   def main(args: Array[String]): Unit = {
 
     val brokers = "10.200.20.98:9092"
     val topic = TestDataMaker.topic
-    val partition: Int = 0 //测试topic只有一个分区
+    val partition: Int = 3 //测试topic只有一个分区
 
     //Kafka参数
     val kafkaParams = Map[String, Object](
@@ -42,7 +44,7 @@ object TestSparkStreaming {
 
     val spark = SparkSession.builder()
       .appName("TestSparkStreaming")
-//      .master("local[2]")
+//            .master("local[2]")
       .config("spark.streaming.kafka.maxRatePerPartition", "20000")
       .getOrCreate()
 
@@ -51,33 +53,42 @@ object TestSparkStreaming {
     //从Redis获取上一次存的Offset
     val jedis = InternalRedisClient.getPool.getResource
     jedis.select(dbDefaultIndex)
-    val topic_partition_key = topic + "_" + partition
-    var lastOffset = 0l
-    val lastSavedOffset = jedis.get(topic_partition_key)
 
-    if (null != lastSavedOffset) {
+    val lastOffset = 0l
+
+    import scala.collection.JavaConverters._
+    val partitionOffset = jedis.hgetAll(topic)
+
+
+    val map: java.util.HashMap[TopicPartition, Long] = new java.util.HashMap()
+
+    map.put(new TopicPartition(topic, 0), lastOffset)
+    map.put(new TopicPartition(topic, 1), lastOffset)
+    map.put(new TopicPartition(topic, 2), lastOffset)
+
+    if (partitionOffset != null) {
       try {
-        lastOffset = lastSavedOffset.toLong
+        partitionOffset
+          .asScala.foreach(action => map.put(new TopicPartition(topic, action._1.toInt), action._2.toLong))
       } catch {
-        case ex: Exception => println(ex.getMessage)
-          println("get lastSavedOffset error, lastSavedOffset from redis [" + lastSavedOffset + "] ")
+        case e: Exception => println(e.getMessage)
+          println("get lastSavedOffset error, lastSavedOffset from redis [" + partitionOffset + "] ")
           System.exit(1)
       }
     }
-    InternalRedisClient.getPool.returnResource(jedis)
 
-    println("lastOffset from redis -> " + lastOffset)
+
+    jedis.close()
+
+    println("lastOffset from redis -> " + map)
 
     //设置每个分区起始的Offset
-    val fromOffsets = Map {
-      new TopicPartition(topic, partition) -> lastOffset
-    }
 
     //使用Direct API 创建Stream
     val stream = KafkaUtils.createDirectStream[String, String](
       ssc,
       LocationStrategies.PreferConsistent,
-      ConsumerStrategies.Assign[String, String](fromOffsets.keys.toList, kafkaParams, fromOffsets)
+      ConsumerStrategies.Assign[String, String](map.asScala.keys.toList, kafkaParams, map.asScala)
     )
 
     //开始处理批次消息
@@ -91,8 +102,7 @@ object TestSparkStreaming {
         val jedis = InternalRedisClient.getPool.getResource
         val p1: Pipeline = jedis.pipelined();
         p1.select(dbDefaultIndex)
-        p1.multi() //开启事务
-
+        p1.multi() //开启事务 redis 事务不会回滚
 
         //逐条处理消息
         result.foreach {
@@ -107,21 +117,23 @@ object TestSparkStreaming {
 
             //使用set保存当天的uv
             val uv_by_day_key = "uv:" + record.day
-//            p1.sadd(uv_by_day_key + "_1", record.user_id) //set 存储
-            p1.pfadd(uv_by_day_key, record.user_id)         //技术估计
+            //            p1.sadd(uv_by_day_key + "_1", record.user_id) //set 存储
+            p1.pfadd(uv_by_day_key, record.user_id) //技术估计
         }
 
         //更新Offset
+        val map = new util.HashMap[String, String]()
         offsetRanges.foreach { offsetRange =>
           println("partition : " + offsetRange.partition + " fromOffset:  " + offsetRange.fromOffset + " untilOffset: " + offsetRange.untilOffset)
-          val topic_partition_key = offsetRange.topic + "_" + offsetRange.partition
-          p1.set(topic_partition_key, offsetRange.untilOffset + "")
+          map.put(offsetRange.partition.toString, offsetRange.untilOffset.toString)
         }
+        p1.hmset(topic, map)
+
 
         p1.exec(); //提交事务
         p1.sync(); //关闭pipeline
 
-        InternalRedisClient.getPool.returnResource(jedis)
+        jedis.close()
 
     }
 
@@ -139,7 +151,7 @@ object TestSparkStreaming {
         val uri = ary(2).split("[=|&]", -1)
         val user_id = uri(1)
         val site_id = uri(3)
-        return Some(MyRecord(day,hour, user_id, site_id))
+        return Some(MyRecord(day, hour, user_id, site_id))
 
       } catch {
         case ex: Exception => println(ex.getMessage)
